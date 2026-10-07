@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using IDEManager.Models;
 
 namespace IDEManager.Data
 {
@@ -19,7 +16,11 @@ namespace IDEManager.Data
 
         private void EnsureDatabaseExists()
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(_dbPath) ?? Environment.CurrentDirectory);
+            var directory = Path.GetDirectoryName(_dbPath);
+            if (!string.IsNullOrWhiteSpace(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
 
             if (!File.Exists(_dbPath))
             {
@@ -27,44 +28,13 @@ namespace IDEManager.Data
             }
         }
 
-        public List<Account> GetAccounts()
-        {
-            return new List<Account>();
-        }
-
-        public List<Project> GetProjects()
-        {
-            return new List<Project>();
-        }
-
-        public List<IdeInstallation> GetIdeInstallations()
-        {
-            return new List<IdeInstallation>();
-        }
-
-        public List<RepositoryInfo> GetRepositories()
-        {
-            return new List<RepositoryInfo>();
-        }
-
-        public List<SDKInfo> GetSdks()
-        {
-            return new List<SDKInfo>();
-        }
-
-        public List<SecretEntry> GetSecrets()
-        {
-            return new List<SecretEntry>();
-        }
-
-        public List<NoteEntry> GetNotes()
-        {
-            return new List<NoteEntry>();
-        }
-
-        public List<WorkSession> GetWorkSessions()
-        {
-            return new List<WorkSession>();
-        }
+        public List<object> GetAccounts() => new();
+        public List<object> GetProjects() => new();
+        public List<object> GetIdeInstallations() => new();
+        public List<object> GetRepositories() => new();
+        public List<object> GetSdks() => new();
+        public List<object> GetSecrets() => new();
+        public List<object> GetNotes() => new();
+        public List<object> GetWorkSessions() => new();
     }
 }

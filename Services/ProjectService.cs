@@ -38,9 +38,8 @@ namespace IDEManager.Services
 
         public string DetectProjectType(string path)
         {
-            if (File.Exists(Path.Combine(path, "Program.cs")) ||
-                Directory.Exists(Path.Combine(path, ".git")) &&
-                Directory.Exists(Path.Combine(path, "src")))
+            if ((File.Exists(Path.Combine(path, "Program.cs")) ||
+                Directory.Exists(Path.Combine(path, ".git")) && Directory.Exists(Path.Combine(path, "src"))))
             {
                 return "C#";
             }
@@ -69,15 +68,6 @@ namespace IDEManager.Services
             }
 
             return "Unknown";
-        }
-
-        public void MarkAsFavorite(int projectId)
-        {
-            var project = _projects.Find(p => p.Id == projectId);
-            if (project == null)
-                return;
-
-            project.IsFavorite = true;
         }
     }
 }

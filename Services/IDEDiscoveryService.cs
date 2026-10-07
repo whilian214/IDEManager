@@ -45,7 +45,8 @@ namespace IDEManager.Services
                                 ExecutablePath = exe,
                                 InstallPath = dir,
                                 Version = "Unknown",
-                                IsDefault = false
+                                IsDefault = false,
+                                IconPath = string.Empty
                             });
                         }
                     }

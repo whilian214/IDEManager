@@ -1,19 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using IDEManager.Models;
 
 namespace IDEManager.Services
 {
-    /// <summary>
-    /// Сервис запуска проектов в IDE и открытия папки проекта.
-    /// </summary>
     public class ProjectLauncherService
     {
-        /// <summary>
-        /// Открывает указанный проект в выбранной IDE.
-        /// Если IDE не передана, пытается выбрать IDE по умолчанию.
-        /// </summary>
         public void OpenProject(Project project, IdeInstallation? ide = null)
         {
             if (project == null)
@@ -26,8 +20,7 @@ namespace IDEManager.Services
 
             if (string.IsNullOrWhiteSpace(executablePath))
             {
-                throw new InvalidOperationException(
-                    "Не удалось найти установленную IDE. Установите Visual Studio, VS Code или Rider.");
+                throw new InvalidOperationException("Не удалось найти IDE. Установите VS Code, Visual Studio или Rider.");
             }
 
             var startInfo = new ProcessStartInfo
@@ -41,9 +34,6 @@ namespace IDEManager.Services
             Process.Start(startInfo);
         }
 
-        /// <summary>
-        /// Пытается найти IDE по умолчанию среди установленных приложений.
-        /// </summary>
         public string DetectPreferredExecutable(Project project)
         {
             var candidates = new[]

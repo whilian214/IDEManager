@@ -1,6 +1,7 @@
+using System.IO;
 using System.Windows;
-using Microsoft.Win32;
 using IDEManager.ViewModels;
+using Microsoft.Win32;
 
 namespace IDEManager
 {
@@ -27,7 +28,7 @@ namespace IDEManager
 
             if (dialog.ShowDialog() == true)
             {
-                var selectedPath = System.IO.Path.GetDirectoryName(dialog.FileName);
+                var selectedPath = Path.GetDirectoryName(dialog.FileName);
                 if (!string.IsNullOrWhiteSpace(selectedPath))
                 {
                     _viewModel.AddProject(selectedPath);
@@ -42,7 +43,7 @@ namespace IDEManager
 
         private void OpenInIdeButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Открытие проекта в IDE будет добавлено в следующем этапе.", "IDE Manager");
+            MessageBox.Show("Открытие проекта в IDE будет добавлено на следующем этапе.", "IDE Manager");
         }
     }
 }
