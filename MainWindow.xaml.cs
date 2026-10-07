@@ -43,7 +43,13 @@ namespace IDEManager
 
         private void OpenInIdeButton_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Открытие проекта в IDE будет добавлено на следующем этапе.", "IDE Manager");
+            if (_viewModel.SelectedProject == null)
+            {
+                MessageBox.Show("Сначала выберите проект из списка.", "IDE Manager");
+                return;
+            }
+
+            _viewModel.OpenSelectedProject();
         }
     }
 }

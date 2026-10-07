@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Linq;
 using IDEManager.Models;
 using IDEManager.Services;
 
@@ -10,14 +11,18 @@ namespace IDEManager.ViewModels
         private readonly IDEDiscoveryService _ideDiscoveryService;
         private readonly SDKDetectionService _sdkDetectionService;
         private readonly TrackingService _trackingService;
+        private readonly ProjectLauncherService _launcherService;
 
         public ObservableCollection<Project> Projects { get; }
         public ObservableCollection<IdeInstallation> InstalledIdeList { get; }
         public ObservableCollection<SDKInfo> InstalledSdkList { get; }
 
+        public Project? SelectedProject { get; set; }
+        public IdeInstallation? SelectedIde { get; set; }
+
         public int TotalProjects => Projects.Count;
         public string TotalTrackedHours => GetTotalTrackedHours();
-        public string ActiveIdeName => InstalledIdeList.Count > 0 ? InstalledIdeList[0].Name : "Not detected";
+        public string ActiveIdeName => SelectedIde?.Name ?? (InstalledIdeList.Count > 0 ? InstalledIdeList[0].Name : "Not detected");
 
         public MainViewModel()
         {
@@ -25,6 +30,7 @@ namespace IDEManager.ViewModels
             _ideDiscoveryService = new IDEDiscoveryService();
             _sdkDetectionService = new SDKDetectionService();
             _trackingService = new TrackingService();
+            _launcherService = new ProjectLauncherService();
 
             Projects = new ObservableCollection<Project>();
             InstalledIdeList = new ObservableCollection<IdeInstallation>();
@@ -48,6 +54,11 @@ namespace IDEManager.ViewModels
             {
                 Projects.Add(project);
             }
+
+            if (Projects.Count > 0 && SelectedProject == null)
+            {
+                SelectedProject = Projects[0];
+            }
         }
 
         public void LoadIDEs()
@@ -57,6 +68,11 @@ namespace IDEManager.ViewModels
             foreach (var ide in _ideDiscoveryService.DiscoverInstalledIDEs())
             {
                 InstalledIdeList.Add(ide);
+            }
+
+            if (InstalledIdeList.Count > 0 && SelectedIde == null)
+            {
+                SelectedIde = InstalledIdeList[0];
             }
         }
 
@@ -74,6 +90,18 @@ namespace IDEManager.ViewModels
         {
             var project = _projectService.AddProject(path);
             Projects.Add(project);
+            SelectedProject = project;
+        }
+
+        public void OpenSelectedProject()
+        {
+            if (SelectedProject == null)
+            {
+                return;
+            }
+
+            var ide = SelectedIde ?? InstalledIdeList.FirstOrDefault();
+            _launcherService.OpenProject(SelectedProject, ide);
         }
 
         public string GetTotalTrackedHours()
