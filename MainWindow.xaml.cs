@@ -1,5 +1,5 @@
-using System.IO;
 using System.Windows;
+using System.IO;
 using IDEManager.ViewModels;
 using Microsoft.Win32;
 
@@ -50,6 +50,16 @@ namespace IDEManager
             }
 
             _viewModel.OpenSelectedProject();
+        }
+
+        private void StopSessionButton_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.EndActiveSession();
+        }
+
+        private void ThemeButton_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.SwitchTheme();
         }
     }
 }

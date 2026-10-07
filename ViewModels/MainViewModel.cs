@@ -1,3 +1,4 @@
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using IDEManager.Models;
@@ -12,17 +13,23 @@ namespace IDEManager.ViewModels
         private readonly SDKDetectionService _sdkDetectionService;
         private readonly TrackingService _trackingService;
         private readonly ProjectLauncherService _launcherService;
+        private readonly SessionTrackerViewModel _sessionTracker;
 
         public ObservableCollection<Project> Projects { get; }
         public ObservableCollection<IdeInstallation> InstalledIdeList { get; }
         public ObservableCollection<SDKInfo> InstalledSdkList { get; }
+        public ObservableCollection<WorkSession> RecentSessions { get; }
 
         public Project? SelectedProject { get; set; }
         public IdeInstallation? SelectedIde { get; set; }
+        public string CurrentTheme { get; set; } = "Dark";
 
         public int TotalProjects => Projects.Count;
         public string TotalTrackedHours => GetTotalTrackedHours();
         public string ActiveIdeName => SelectedIde?.Name ?? (InstalledIdeList.Count > 0 ? InstalledIdeList[0].Name : "Not detected");
+        public string CurrentSessionTime => _sessionTracker.CurrentSessionTime;
+        public bool IsSessionActive => _sessionTracker.IsTracking;
+        public string? ActiveProjectName => _sessionTracker.ActiveProjectName;
 
         public MainViewModel()
         {
@@ -31,10 +38,15 @@ namespace IDEManager.ViewModels
             _sdkDetectionService = new SDKDetectionService();
             _trackingService = new TrackingService();
             _launcherService = new ProjectLauncherService();
+            _sessionTracker = new SessionTrackerViewModel(_trackingService, _launcherService);
 
             Projects = new ObservableCollection<Project>();
             InstalledIdeList = new ObservableCollection<IdeInstallation>();
             InstalledSdkList = new ObservableCollection<SDKInfo>();
+            RecentSessions = new ObservableCollection<WorkSession>();
+
+            _sessionTracker.SessionUpdated += (time) => { };
+            _sessionTracker.SessionEnded += () => RefreshSessions();
 
             LoadAll();
         }
@@ -44,6 +56,7 @@ namespace IDEManager.ViewModels
             LoadProjects();
             LoadIDEs();
             LoadSDKs();
+            RefreshSessions();
         }
 
         public void LoadProjects()
@@ -86,6 +99,20 @@ namespace IDEManager.ViewModels
             }
         }
 
+        public void RefreshSessions()
+        {
+            RecentSessions.Clear();
+
+            var sessions = _trackingService.GetSessions()
+                .OrderByDescending(s => s.StartedAt)
+                .Take(10);
+
+            foreach (var session in sessions)
+            {
+                RecentSessions.Add(session);
+            }
+        }
+
         public void AddProject(string path)
         {
             var project = _projectService.AddProject(path);
@@ -101,7 +128,23 @@ namespace IDEManager.ViewModels
             }
 
             var ide = SelectedIde ?? InstalledIdeList.FirstOrDefault();
-            _launcherService.OpenProject(SelectedProject, ide);
+            if (ide == null)
+            {
+                return;
+            }
+
+            _sessionTracker.StartSession(SelectedProject, ide);
+        }
+
+        public void EndActiveSession()
+        {
+            _sessionTracker.EndSession();
+            RefreshSessions();
+        }
+
+        public void SwitchTheme()
+        {
+            CurrentTheme = CurrentTheme == "Dark" ? "Light" : "Dark";
         }
 
         public string GetTotalTrackedHours()
